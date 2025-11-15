@@ -37,7 +37,6 @@ data/external/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/external/.gitkeep
-*.csv
 *.xlsx
 *.json
 *.parquet

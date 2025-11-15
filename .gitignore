@@ -37,11 +37,21 @@ data/external/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/external/.gitkeep
+
+# Allow important collected datasets
+!data/raw/mlab_ndt_us_30days_*.csv
+!Lumos5G-v1.0/Lumos5G-v1.0.csv
+!notebooks/data/raw/ripe_measurement_ids.csv
+
+# Block other data formats
 *.xlsx
 *.json
 *.parquet
 *.h5
 *.hdf5
+
+# Block processed/intermediate CSV files (keep only raw collected data)
+notebooks/data/processed/*.csv
 
 # Models
 results/models/*.pkl

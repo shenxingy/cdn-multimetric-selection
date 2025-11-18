@@ -1,0 +1,12 @@
+Model performance summary (log-download space):
+                                model  r2_train   r2_test  rmse_train  rmse_test  mae_train  mae_test  prediction_time_10k_s  training_time_s
+0  Model A - Simple Linear Regression  0.056859  0.066140    1.499028   1.501159   1.205305  1.210198               0.000062              NaN
+1          Model B - Ridge Regression  0.116985  0.115217    1.450458   1.461182   1.165102  1.173729               0.000710              NaN
+2      Model C - Small Neural Network  0.204875  0.199316    1.376382   1.390005   1.118115  1.127814               0.001532         4.833705
+
+Server-selection summary (actual throughput in Mbps):
+               method  median_mbps    p90_mbps  pct_gain_vs_rtt
+0  Method 1 - Min RTT   142.855626  605.121082         0.000000
+1  Method 2 - Model A   123.324731  546.731525       -13.671771
+2  Method 3 - Model B   122.306186  542.855161       -14.384760
+3  Method 4 - Model C   140.271129  592.709860        -1.809167

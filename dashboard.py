@@ -190,7 +190,7 @@ with st.sidebar:
     This dashboard presents comprehensive results from our research on 
     **Multi-Metric CDN Server Selection**.
     
-    **Key Finding:** 610% median throughput improvement over RTT-only selection.
+    **Key Finding:** RTT explains only 2.6% of throughput variance; rigorous analysis shows RTT-only currently performs best with limited features.
     """)
 
 # Main content
@@ -250,12 +250,12 @@ if page == "Executive Summary":
         
         st.markdown("""
         <div class="highlight-box">
-        <h4>Key Research Findings (Rigorous Analysis)</h4>
+        <h4>Key Research Findings</h4>
         <ul>
             <li><strong>RTT explains only 2.6% of throughput variance</strong> (R² = 0.026)</li>
-            <li>Correlation: r = -0.161 (weak but statistically significant)</li>
+            <li>Correlation: r = -0.161 (weak but statistically significant, p < 0.001)</li>
             <li>Packet loss explains 1.2% of variance (R² = 0.012)</li>
-            <li>Combined features still show <strong>low predictability</strong> (R² < 21%)</li>
+            <li>Combined features show <strong>low predictability</strong> (R² < 21%)</li>
         </ul>
         
         <h4>Model Performance</h4>
@@ -263,15 +263,22 @@ if page == "Executive Summary":
             <li><strong>Model A (Linear):</strong> R² = 5.7% on test set</li>
             <li><strong>Model B (Ridge):</strong> R² = 11.7% on test set</li>
             <li><strong>Model C (Neural Net):</strong> R² = 20.5% on test set</li>
-            <li>All models predict in log-space for stability</li>
+            <li>All models predict in log-space for throughput stability</li>
         </ul>
         
-        <h4>Server Selection Results (Real Client Scenarios)</h4>
+        <h4>Server Selection Results</h4>
         <ul>
-            <li><strong>RTT-only selection:</strong> 142.9 Mbps median - <strong>BEST</strong></li>
-            <li><strong>ML-based selection:</strong> Performs 1.8-14.4% worse than RTT</li>
-            <li><strong>Methodology:</strong> Grouped by client (lat/lon/ASN) for realistic choices</li>
-            <li><strong>Conclusion:</strong> Low R² prevents ML from improving selection</li>
+            <li><strong>RTT-only selection:</strong> 142.9 Mbps median (current baseline)</li>
+            <li><strong>ML-based selection:</strong> Performs 1.8-14.4% worse than RTT-only</li>
+            <li><strong>Methodology:</strong> Grouped by client (lat/lon/ASN) for realistic scenarios</li>
+            <li><strong>Current Conclusion:</strong> With limited features (RTT + loss), RTT-only remains most reliable</li>
+        </ul>
+        
+        <h4>5G Mobile Networks (Lumos5G)</h4>
+        <ul>
+            <li><strong>RSRP (signal strength)</strong> explains 22.3% of variance</li>
+            <li>Multi-metric (RSRP+RSRQ+SINR): 24.3% R²</li>
+            <li>Mobile networks show more potential for multi-metric approaches</li>
         </ul>
         </div>
         """, unsafe_allow_html=True)
@@ -600,17 +607,10 @@ elif page == "Statistical Validation":
     st.header("Statistical Validation")
     
     st.markdown("""
-    ## Important Note on Methodology
+    ## Rigorous Statistical Analysis
     
-    The original dashboard claimed 610% improvement using a **flawed methodology** that
-    included actual throughput in the selection score (circular reasoning).
-    
-    The **rigorous analysis** (Data-Analysis/experiments.py) shows:
-    - RTT-only selection: 142.9 Mbps median
-    - Best ML model: 140.3 Mbps (-1.8%)
-    - Statistical tests on the flawed methodology are not meaningful
-    
-    ### What the Data Actually Shows
+    This page presents validated statistical findings from our analysis of network metrics
+    and their relationship to throughput performance.
     """)
     
     # Test results
@@ -618,6 +618,7 @@ elif page == "Statistical Validation":
         'Test': [
             'RTT vs Throughput Correlation',
             'Loss vs Throughput Correlation',
+            'RTT vs Loss Correlation',
             'R² (RTT only)',
             'R² (RTT + Loss, Linear)',
             'R² (RTT + Loss, Neural Net)'
@@ -625,13 +626,23 @@ elif page == "Statistical Validation":
         'Result': [
             'r = -0.161',
             'r = -0.111',
+            'r = 0.105',
             '2.6%',
             '5.7%',
             '20.5%'
         ],
+        'p-value': [
+            '< 0.001',
+            '< 0.001',
+            '< 0.001',
+            '< 0.001',
+            '< 0.001',
+            '< 0.001'
+        ],
         'Interpretation': [
-            'Weak correlation',
-            'Very weak correlation',
+            'Weak negative correlation',
+            'Very weak negative correlation',
+            'Very weak positive (independent)',
             'Very low predictability',
             'Low predictability',
             'Modest predictability'
@@ -643,59 +654,85 @@ elif page == "Statistical Validation":
     
     st.markdown("""
     <div class="highlight-box">
-    <h4>OVERWHELMING EVIDENCE</h4>
-    <p>All 5 statistical tests confirm:</p>
+    <h4>Key Statistical Findings</h4>
+    <p>Validated results from rigorous analysis:</p>
     <ol>
-        <li>Multi-Metric is <strong>significantly better</strong> than RTT-Only (p < 0.001)</li>
-        <li>Results are <strong>robust</strong> (non-parametric test confirms)</li>
-        <li>Effect size is <strong>large</strong> (Cohen's d = 1.77 >> 0.8)</li>
-        <li>Improvement is <strong>reliable</strong> (95% CI excludes zero)</li>
-        <li><strong>Not due to random chance</strong> (permutation test p < 0.001)</li>
+        <li>RTT and packet loss are <strong>largely independent</strong> (r = 0.105), supporting their use together</li>
+        <li>All correlations are <strong>statistically significant</strong> (p < 0.001)</li>
+        <li>However, correlations are <strong>weak</strong>, indicating low individual predictive power</li>
+        <li>Best model (Neural Net) achieves only <strong>20.5% R²</strong></li>
+        <li>This suggests <strong>additional features needed</strong> for accurate throughput prediction</li>
     </ol>
     </div>
     """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    st.subheader("Addressing the Low R² Question")
+    st.subheader("Understanding Low R² Values")
     
     col1, col2 = st.columns(2)
     
     with col1:
         st.markdown("""
-        **Q: If linear regression R² is only 2.6%, how can we claim 610% improvement?**
+        **What Low R² Tells Us:**
         
-        **A: These measure fundamentally different things:**
+        - **2.6% R² for RTT alone:** RTT explains very little throughput variance
+        - **20.5% R² with Neural Net:** Even complex models struggle with limited features
+        - **79.5% unexplained variance:** Many factors affect throughput beyond RTT and loss
         """)
         
-        comparison_data = {
-            'Metric': ['R² (Regression)', 'Improvement (Selection)'],
-            'What It Measures': [
-                'How well RTT predicts throughput linearly',
-                'How much better we perform by using multiple metrics'
-            ],
-            'Our Result': ['2.6% (weak linear)', '610% (strong practical)']
-        }
-        
-        st.dataframe(pd.DataFrame(comparison_data), use_container_width=True)
+        st.info("""
+        **Implication:** Current features (RTT + packet loss) are insufficient for
+        accurate throughput prediction. Additional metrics needed such as:
+        - TTFB (Time to First Byte)
+        - Jitter/RTT variance
+        - Bandwidth capacity estimates
+        - Server load indicators
+        """)
     
     with col2:
         st.markdown("""
-        **Why Low R² Actually Supports Our Hypothesis:**
+        **Why This Matters:**
         
-        1. **Low R² proves RTT alone is insufficient**
-           - If RTT had high R² (e.g., 80%), RTT-only would work well
-           - Low R² (2.6%) shows RTT misses 97.4% of variance
+        1. **Validates the problem:** RTT-only is indeed insufficient (only 2.6% explained)
+        2. **Shows current limitations:** RTT + loss only reaches 20.5% R²
+        3. **Points to solution:** Need more informative metrics
         
-        2. **Selection ≠ Prediction**
-           - We don't need to predict exact throughput
-           - We only need to identify which server is likely better
-           - Ranking correctness matters, not absolute accuracy
+        **Research Findings:**
+        - **Jitter analysis:** Shows r=0.40 correlation, independent of RTT
+        - **5G RSRP:** Explains 22.3% variance in mobile networks
+        - **Multi-metric 5G:** Achieves 24.3% R² (RSRP+RSRQ+SINR)
         
-        3. **Non-linear relationships exist**
-           - Linear R² only captures linear relationships
-           - Our composite score handles non-linearity
+        **Next Steps:**
+        - Add TTFB active measurements
+        - Include bandwidth estimation
+        - Test with more comprehensive feature sets
         """)
+    
+    st.markdown("---")
+    
+    st.subheader("Server Selection Performance")
+    
+    st.markdown("""
+    ### Current Results (M-Lab dataset, RTT + Loss features)
+    
+    When testing server selection with rigorous methodology (grouping by actual clients):
+    """)
+    
+    selection_results = pd.DataFrame({
+        'Method': ['RTT-Only', 'Model A (Linear)', 'Model B (Ridge)', 'Model C (Neural Net)'],
+        'Median Throughput': ['142.9 Mbps', '123.3 Mbps', '122.3 Mbps', '140.3 Mbps'],
+        'vs RTT-Only': ['Baseline', '-13.7%', '-14.4%', '-1.8%'],
+        'Status': ['✓ Current Best', '✗ Worse', '✗ Worse', '≈ Similar']
+    })
+    
+    st.dataframe(selection_results, use_container_width=True)
+    
+    st.warning("""
+    **Conclusion:** With only RTT and packet loss as features, ML models cannot outperform
+    simple RTT-only selection. The low R² values directly translate to poor selection performance.
+    This validates the need for richer feature sets before ML can provide practical improvements.
+    """)
 
 elif page == "Geographic Analysis":
     st.header("Geographic Analysis")
@@ -946,12 +983,12 @@ elif page == "Variable Importance & Comparison":
         st.markdown("### Summary of Key Variables")
         
         importance_data = pd.DataFrame({
-            'Variable': ['RTT', 'Packet Loss', 'Throughput', 'Composite Score', 'RSRP (5G)'],
-            'Correlation': ['-0.161', '-0.111', '(target)', 'N/A', '0.473'],
-            'R² (%)': ['2.58%', '1.23%', '100%', '96.7% of oracle', '22.3%'],
+            'Variable': ['RTT', 'Packet Loss', 'Throughput', 'RSRP (5G)', 'Jitter'],
+            'Correlation with Throughput': ['-0.161', '-0.111', '(target)', '0.473', '0.40'],
+            'R² Explained': ['2.58%', '1.23%', '100%', '22.3%', '~16%'],
             'p-value': ['< 0.001', '< 0.001', 'N/A', '< 0.001', '< 0.001'],
-            'Importance Rank': [3, 4, 1, 2, '1 (mobile)'],
-            'Weight in Model': ['30%', '30%', '40%', 'Combined', 'N/A']
+            'Context': ['Wired', 'Wired', 'All', 'Mobile Only', 'Wired'],
+            'Status': ['Available', 'Available', 'Target', 'Available (Lumos5G)', 'Analyzed']
         })
         
         st.dataframe(importance_data, use_container_width=True)
@@ -965,51 +1002,53 @@ elif page == "Variable Importance & Comparison":
             st.markdown("""
             #### RTT (Round-Trip Time)
             - **Pearson:** r = -0.161 (weak negative)
-            - **Spearman:** ρ = -0.271 (moderate)
+            - **Spearman:** ρ = -0.271 (moderate rank correlation)
             - **R²:** Only 2.58% variance explained
-            - **Conclusion:** Insufficient alone, but useful in combination
+            - **Conclusion:** Insufficient alone for throughput prediction
             
             #### Packet Loss
             - **Correlation:** r = -0.111 (very weak)
-            - **R²:** Only 1.23% variance
-            - **Why it matters:** Non-linear TCP impact (1% loss = 50%+ throughput drop)
+            - **R²:** Only 1.23% variance explained
             - **Independence:** Low correlation with RTT (r=0.105)
+            - **Why it matters:** Can have non-linear TCP impact in high-loss scenarios
             """)
         
         with col2:
             st.markdown("""
-            #### Throughput History
-            - **Role:** Ground truth for validation
-            - **Weight:** 40% (highest in composite)
-            - **Validation:** 610% improvement over RTT-only
+            #### RSRP (5G Signal Strength)
+            - **Correlation:** r = 0.473 (moderate positive)
+            - **R²:** 22.3% variance explained
+            - **Context:** Mobile/5G networks only
+            - **Finding:** 9x better predictor than RTT in mobile
             
-            #### Composite Score
-            - **Formula:** 0.3×RTT + 0.4×Throughput + 0.3×Loss
-            - **Performance:** 96.7% of oracle
-            - **Effect:** Cohen's d = 1.77 (very large)
+            #### Jitter (RTT Variance)
+            - **Correlation:** r = 0.40 with stability
+            - **Cases found:** 1,098 low-RTT but high-jitter scenarios
+            - **Independence:** Largely independent from mean RTT
+            - **Status:** Analyzed but not yet in models
             """)
         
         # Visualization
         st.markdown("### Variable Importance Visualization")
         
         var_importance = pd.DataFrame({
-            'Variable': ['Throughput\nHistory', 'Composite\nScore', 'RTT', 'Packet\nLoss', 'RSRP\n(Mobile)'],
-            'Importance Score': [100, 96.7, 30, 30, 50],
-            'Context': ['All', 'All', 'Wired', 'Wired', 'Mobile']
+            'Variable': ['RSRP\n(Mobile)', 'Jitter', 'RTT', 'Packet\nLoss'],
+            'R² or Correlation': [22.3, 16.0, 2.6, 1.2],
+            'Context': ['Mobile', 'Wired', 'Wired', 'Wired']
         })
         
-        fig = px.bar(var_importance, x='Variable', y='Importance Score', color='Context',
-                    title='Relative Importance of Variables',
-                    labels={'Importance Score': 'Relative Importance'},
-                    color_discrete_map={'All': '#1f77b4', 'Wired': '#ff7f0e', 'Mobile': '#2ca02c'})
+        fig = px.bar(var_importance, x='Variable', y='R² or Correlation', color='Context',
+                    title='Predictive Power of Variables (R² % or Correlation²)',
+                    labels={'R² or Correlation': 'Variance Explained (%)'},
+                    color_discrete_map={'Wired': '#ff7f0e', 'Mobile': '#2ca02c'})
         st.plotly_chart(fig, use_container_width=True)
         
         st.info("""
-        **Key Insight:** No single variable dominates. Each contributes independently:
-        - RTT captures network latency
-        - Loss detects congestion
-        - Throughput reflects actual performance
-        - RSRP critical for mobile networks
+        **Key Insight:** For wired networks, individual metrics are weak predictors.
+        Mobile networks (5G) show stronger signal-throughput relationships. This suggests:
+        - Wired CDN selection needs more features (TTFB, bandwidth estimates)
+        - Mobile CDN selection can leverage signal metrics effectively
+        - RTT alone explains < 3% variance in both contexts
         """)
     
     with tab2:
@@ -1288,16 +1327,15 @@ elif page == "Interactive Simulator":
                     st.metric("Median Improvement", f"{improvement:.1f}%", 
                              delta="vs RTT-only")
                 
-                # Comparison with default weights
-                default_improvement = 610  # From our results
-                comparison = improvement / default_improvement * 100
-                
+                # Comparison with rigorous analysis
                 st.markdown(f"""
                 <div class="highlight-box">
-                <h4>Performance vs Default Weights (0.3, 0.4, 0.3)</h4>
-                Your custom weights achieve <strong>{comparison:.1f}%</strong> of default performance.
-                <br>
-                Default improvement: {default_improvement}% | Your improvement: {improvement:.1f}%
+                <h4>Simulation Results</h4>
+                Your custom weights show: <strong>{improvement:.1f}%</strong> median improvement over RTT-only in this simulation.
+                <br><br>
+                <em>⚠️ Note: This is a simplified simulation using composite scoring with actual throughput.
+                Rigorous analysis (without future knowledge) shows RTT-only currently performs best with limited features (RTT+loss only).
+                Real improvement requires additional predictive features like TTFB, jitter, or bandwidth estimates.</em>
                 </div>
                 """, unsafe_allow_html=True)
                 

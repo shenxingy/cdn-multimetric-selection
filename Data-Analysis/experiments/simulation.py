@@ -34,6 +34,8 @@ def simulate_selection(
     }
 
     for _, group in df.groupby(["client_lat", "client_lon", "client_asn"]):
+        if len(group) <= 4:  # Skip clients with less than 4 candidate server
+            continue
         group = group.sort_values("min_rtt_ms")
         methods["Method 1 - Min RTT"].append(group.iloc[0]["download_mbps"])
         methods["Method 2 - Model A"].append(select_with_model(group, simple_artifact))

@@ -76,7 +76,7 @@ pip install -r requirements.txt
 
 ```bash
 # Clone repo
-git clone https://github.com/<your-username>/cdn-multimetric-selection.git
+git clone https://github.com/shenxingy/cdn-multimetric-selection.git
 cd cdn-multimetric-selection
 
 # Create virtual environment
@@ -85,6 +85,10 @@ source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env and fill in RIPE_ATLAS_PRIMARY_KEY and GCP_PROJECT_ID
 ```
 
 Run Jupyter Notebook:
@@ -122,6 +126,6 @@ If you use this repository in your research, please cite:
 
 ## 📬 Contact
 
-* Alex Shen — [LinkedIn](https://www.linkedin.com) | [GitHub](https://github.com/yourusername)
+* Alex Shen — [GitHub](https://github.com/shenxingy)
 * Wajiha Naveed — Duke University
 * Ankit Raj — Duke University

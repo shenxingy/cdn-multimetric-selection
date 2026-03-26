@@ -70,13 +70,20 @@ st.markdown("""
 # Load data function with caching
 @st.cache_data
 def load_mlab_data():
-    """Load M-Lab dataset"""
+    """Load M-Lab dataset, discovering the file via glob to avoid hardcoded filenames."""
+    candidates = sorted(Path("data/raw").glob("mlab_ndt_*.csv"))
+    if not candidates:
+        # Fall back to notebooks mirror location
+        candidates = sorted(Path("notebooks/data/raw").glob("mlab_ndt_*.csv"))
+    if not candidates:
+        st.error("M-Lab data file not found. Run src/utils/mlab_data_collector.py first.")
+        return pd.DataFrame()
     try:
-        df = pd.read_csv('data/raw/mlab_ndt_us_30days_20251111_004612.csv')
+        df = pd.read_csv(candidates[-1])
         df['date'] = pd.to_datetime(df['date'])
         return df
-    except FileNotFoundError:
-        st.error("M-Lab data file not found. Please ensure data is in the correct location.")
+    except Exception as e:
+        st.error(f"Failed to load M-Lab data: {e}")
         return pd.DataFrame()
 
 @st.cache_data

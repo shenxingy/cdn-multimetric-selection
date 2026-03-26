@@ -14,8 +14,8 @@ from sklearn.metrics import r2_score, mean_absolute_error
 import warnings
 warnings.filterwarnings('ignore')
 
-# Load M-Lab data
-data_path = Path("/Users/ankitraj2/558/cdn-multimetric-selection/notebooks/data/raw/mlab_ndt_us_30days_20251111_004612.csv")
+# Load M-Lab data — path resolved relative to repo root
+data_path = Path(__file__).resolve().parents[1] / "notebooks" / "data" / "raw" / "mlab_ndt_us_30days_20251111_004612.csv"
 print(f"Loading M-Lab data from {data_path}...")
 df = pd.read_csv(data_path, parse_dates=['date'])
 print(f"✓ Loaded {len(df):,} measurements")

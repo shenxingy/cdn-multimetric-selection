@@ -26,8 +26,8 @@ print("RIPE ATLAS DATA ANALYSIS")
 print("="*80)
 print()
 
-# Load RIPE data
-ripe_path = Path("/Users/ankitraj2/558/cdn-multimetric-selection/notebooks/data/processed/ripe_atlas_processed.csv")
+# Load RIPE data — path resolved relative to repo root
+ripe_path = Path(__file__).resolve().parents[1] / "notebooks" / "data" / "processed" / "ripe_atlas_processed.csv"
 df = pd.read_csv(ripe_path)
 
 print(f"✓ Loaded {len(df):,} RIPE Atlas measurements")

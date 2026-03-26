@@ -17,8 +17,8 @@ from pathlib import Path
 from google.cloud import bigquery
 import pandas as pd
 
-# Project configuration
-PROJECT_ID = 'cdn-adv-comp-network-project'
+# Project configuration — GCP project ID read from environment variable
+PROJECT_ID = os.getenv('GCP_PROJECT_ID', 'cdn-adv-comp-network-project')
 MLAB_PROJECT = 'measurement-lab'
 
 # Output configuration
@@ -27,14 +27,13 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_bigquery_client():
-    """Initialize BigQuery client"""
+    """Initialize BigQuery client. Raises RuntimeError on failure."""
     try:
         client = bigquery.Client(project=PROJECT_ID)
         print(f"✓ Connected to BigQuery project: {PROJECT_ID}")
         return client
     except Exception as e:
-        print(f"❌ Failed to connect to BigQuery: {e}")
-        sys.exit(1)
+        raise RuntimeError(f"Failed to connect to BigQuery: {e}") from e
 
 
 def collect_ndt_sample(client, days_back=30, sample_size=50000, country_code='US'):
@@ -185,7 +184,11 @@ def main():
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     # Initialize client
-    client = get_bigquery_client()
+    try:
+        client = get_bigquery_client()
+    except RuntimeError as e:
+        print(f"\n❌ {e}")
+        sys.exit(1)
     
     # Collect NDT data
     df, output_file = collect_ndt_sample(
